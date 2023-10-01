@@ -18,6 +18,7 @@ fastify.register(cors, {
 fastify.register(clerkPlugin);
 
 // Custom middleware to check Clerk user authentication
+// We need to make sure that the Next.js app is sending the right headers from Clerk
 fastify.addHook('preHandler', async (request, reply) => {
     console.log(request);
     // const { userId } = getAuth(request);
