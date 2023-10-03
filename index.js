@@ -40,6 +40,7 @@ fastify.addContentTypeParser(
 );
 
 fastify.post("/api/db/preview", require("./api/db/preview"));
+fastify.post("/api/db/query", require("./api/db/query"));
 
 const port = 8000;
 
