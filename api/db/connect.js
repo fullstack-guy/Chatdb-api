@@ -16,11 +16,9 @@ function simplifyDataType(dataType) {
 
 const handler = async (request, reply) => {
   let { connection_string, database_uuid } = request.body;
-  console.log("req", request.body);
   if (database_uuid) {
     const auth = getAuth(request);
     const token = await auth.getToken({ template: "supabase" });
-
     const supabase = createClient(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_ANON_KEY,
@@ -43,7 +41,7 @@ const handler = async (request, reply) => {
       return;
     }
     const bt = await new BasisTheory().init(
-      process.env.NEXT_PRIVATE_BASIS_THEORY_KEY
+      process.env.PRIVATE_BASIS_THEORY_KEY
     );
 
     const connectionStringObject = await bt.tokens.retrieve(

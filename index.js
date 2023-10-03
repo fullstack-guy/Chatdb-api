@@ -20,11 +20,10 @@ fastify.register(clerkPlugin);
 // Custom middleware to check Clerk user authentication
 // We need to make sure that the Next.js app is sending the right headers from Clerk
 fastify.addHook("preHandler", async (request, reply) => {
-  console.log(request);
-  // const { userId } = getAuth(request);
-  // if (!userId) {
-  //     return reply.code(403).send("Unauthorized");
-  // }
+  const { userId } = getAuth(request);
+  if (!userId) {
+    return reply.code(403).send("Unauthorized");
+  }
 });
 
 fastify.addContentTypeParser(
@@ -42,6 +41,7 @@ fastify.addContentTypeParser(
 
 fastify.post("/api/db/preview", require("./api/db/preview"));
 fastify.post("/api/db/query", require("./api/db/query"));
+fastify.post("/api/db/connect", require("./api/db/connect"));
 
 const port = 8000;
 
