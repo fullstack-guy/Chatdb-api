@@ -43,11 +43,12 @@ fastify.post("/api/db/preview", require("./api/db/preview"));
 fastify.post("/api/db/query", require("./api/db/query"));
 fastify.post("/api/db/connect", require("./api/db/connect"));
 
-const port = 8000;
+const port = process.env.PORT || 8000;
+const host = ("RENDER" in process.env) ? `0.0.0.0` : `localhost`;
 
 const start = async () => {
   try {
-    await fastify.listen({ port: port });
+    await fastify.listen({ host: host, port: port });
     fastify.log.info(`Server running on http://localhost:${port}/`);
   } catch (err) {
     fastify.log.error(err);
