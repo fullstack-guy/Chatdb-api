@@ -1,8 +1,8 @@
 const { BasisTheory } = require("@basis-theory/basis-theory-js");
 const { getDatabaseStringFromUUID } = require("../../utils/database");
-const { Pool } = require("pg");
 const { createClient } = require("@supabase/supabase-js");
 const { getAuth } = require("@clerk/fastify");
+const { createPool } = require("../../utils/pool");
 
 function simplifyDataType(dataType) {
   // TODO: Strong typing dataType
@@ -16,6 +16,7 @@ function simplifyDataType(dataType) {
 
 const handler = async (request, reply) => {
   let { connection_string, database_uuid } = request.body;
+
   if (database_uuid) {
     const auth = getAuth(request);
     const token = await auth.getToken({ template: "supabase" });
@@ -49,9 +50,8 @@ const handler = async (request, reply) => {
     );
     connection_string = "postgres://" + connectionStringObject.data;
   }
-  const pool = new Pool({
-    connectionString: connection_string,
-  });
+
+  const pool = await createPool(connection_string);
 
   try {
     const client = await pool.connect();

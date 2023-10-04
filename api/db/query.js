@@ -1,8 +1,8 @@
 const { BasisTheory } = require("@basis-theory/basis-theory-js");
 const { getAuth } = require("@clerk/fastify");
 const { createClient } = require("@supabase/supabase-js");
-const { Pool } = require("pg");
 const { getDatabaseStringFromUUID } = require("../../utils/database");
+const { createPool } = require("../../utils/pool");
 
 const handler = async (request, reply) => {
   const { query, database_uuid } = request.body;
@@ -42,9 +42,7 @@ const handler = async (request, reply) => {
     );
     const connection_string = "postgres://" + connectionStringObject.data;
 
-    const pool = new Pool({
-      connectionString: connection_string,
-    });
+    const pool = await createPool(connection_string);
 
     const client = await pool.connect();
     const result = await client.query(query);
