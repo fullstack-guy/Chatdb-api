@@ -12,9 +12,11 @@ const handler = async (request, reply) => {
     return;
   }
 
-  const auth = getAuth(request);
+  //const auth = getAuth(request);
   console.log("auth on query", auth);
-  const token = await auth.getToken({ template: "supabase" });
+  // const token = await auth.getToken({ template: "supabase" });
+  const token = extractBearerFromRequest(request);
+
   console.log("token on query", token);
   const supabase = createClient(supabaseUrl, process.env.SUPABASE_ANON_KEY, {
     global: {

@@ -20,10 +20,9 @@ fastify.register(clerkPlugin);
 // Custom middleware to check Clerk user authentication
 // We need to make sure that the Next.js app is sending the right headers from Clerk
 fastify.addHook("preHandler", async (request, reply) => {
-  console.log("preHandler headers", request.headers);
-  const { userId } = getAuth(request);
-  console.log("preHandler userId", userId);
-  if (!userId) {
+  const authHeader = request.headers.authorization;
+
+  if (!authHeader && !authHeader.startsWith("Bearer ")) {
     return reply.code(403).send("Unauthorized");
   }
 });

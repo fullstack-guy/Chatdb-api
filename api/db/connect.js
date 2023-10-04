@@ -3,6 +3,7 @@ const { getDatabaseStringFromUUID } = require("../../utils/database");
 const { createClient } = require("@supabase/supabase-js");
 const { getAuth } = require("@clerk/fastify");
 const { createPool } = require("../../utils/pool");
+const { extractBearerFromRequest } = require("../../utils/auth");
 
 function simplifyDataType(dataType) {
   // TODO: Strong typing dataType
@@ -18,9 +19,10 @@ const handler = async (request, reply) => {
   let { connection_string, database_uuid } = request.body;
 
   if (database_uuid) {
-    const auth = getAuth(request);
+    //const auth = getAuth(request);
     console.log("auth on connect", auth);
-    const token = await auth.getToken({ template: "supabase" });
+    //const token = await auth.getToken({ template: "supabase" });
+    const token = extractBearerFromRequest(request);
     console.log("token on connect", token);
     const supabase = createClient(
       process.env.SUPABASE_URL,

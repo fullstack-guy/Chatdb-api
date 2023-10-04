@@ -8,9 +8,11 @@ const handler = async (request, reply) => {
   try {
     const { database_uuid, table_name, pageNumber, where_clause, order_by } =
       request.body;
-    const auth = getAuth(request);
+    // const auth = getAuth(request);
     console.log("auth on preview", auth);
-    const token = await auth.getToken({ template: "supabase" });
+    //const token = await auth.getToken({ template: "supabase" });
+    const token = extractBearerFromRequest(request);
+
     console.log("token on preview", token);
 
     const supabase = createClient(
