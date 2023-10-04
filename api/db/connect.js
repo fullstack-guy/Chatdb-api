@@ -20,7 +20,6 @@ const handler = async (request, reply) => {
 
   if (database_uuid) {
     //const auth = getAuth(request);
-    console.log("auth on connect", auth);
     //const token = await auth.getToken({ template: "supabase" });
     const token = extractBearerFromRequest(request);
     console.log("token on connect", token);

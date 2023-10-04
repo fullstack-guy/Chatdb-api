@@ -1,4 +1,4 @@
-function extractBearerFromRequest(request) {
+const extractBearerFromRequest = (request) => {
   const authHeader = request.headers.authorization;
 
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -8,6 +8,6 @@ function extractBearerFromRequest(request) {
   }
 
   return null; // Return null if no valid Bearer token found
-}
+};
 
 module.exports = { extractBearerFromRequest };

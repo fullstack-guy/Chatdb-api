@@ -3,6 +3,7 @@ const { getAuth } = require("@clerk/fastify");
 const { createClient } = require("@supabase/supabase-js");
 const { getDatabaseStringFromUUID } = require("../../utils/database");
 const { createPool } = require("../../utils/pool");
+const { extractBearerFromRequest } = require("../../utils/auth");
 
 const handler = async (request, reply) => {
   const { query, database_uuid } = request.body;
@@ -13,7 +14,6 @@ const handler = async (request, reply) => {
   }
 
   //const auth = getAuth(request);
-  console.log("auth on query", auth);
   // const token = await auth.getToken({ template: "supabase" });
   const token = extractBearerFromRequest(request);
 

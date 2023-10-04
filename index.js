@@ -22,9 +22,7 @@ fastify.register(clerkPlugin);
 fastify.addHook("preHandler", async (request, reply) => {
   const authHeader = request.headers.authorization;
 
-  if (!authHeader && !authHeader.startsWith("Bearer ")) {
-    return reply.code(403).send("Unauthorized");
-  }
+  console.log("authHeader", authHeader);
 });
 
 fastify.addContentTypeParser(
