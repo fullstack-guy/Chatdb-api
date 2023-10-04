@@ -9,11 +9,8 @@ const handler = async (request, reply) => {
   try {
     const { database_uuid, table_name, pageNumber, where_clause, order_by } =
       request.body;
-    // const auth = getAuth(request);
-    //const token = await auth.getToken({ template: "supabase" });
-    const token = extractBearerFromRequest(request);
-
-    console.log("token on preview", token);
+    const auth = getAuth(request);
+    const token = await auth.getToken({ template: "supabase" });
 
     const supabase = createClient(
       process.env.SUPABASE_URL,

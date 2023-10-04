@@ -19,10 +19,8 @@ const handler = async (request, reply) => {
   let { connection_string, database_uuid } = request.body;
 
   if (database_uuid) {
-    //const auth = getAuth(request);
-    //const token = await auth.getToken({ template: "supabase" });
-    const token = extractBearerFromRequest(request);
-    console.log("token on connect", token);
+    const auth = getAuth(request);
+    const token = await auth.getToken({ template: "supabase" });
     const supabase = createClient(
       process.env.SUPABASE_URL,
       process.env.SUPABASE_ANON_KEY,
