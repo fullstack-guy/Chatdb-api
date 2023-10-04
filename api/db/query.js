@@ -13,8 +13,9 @@ const handler = async (request, reply) => {
   }
 
   const auth = getAuth(request);
+  console.log("auth on query", auth);
   const token = await auth.getToken({ template: "supabase" });
-
+  console.log("token on query", token);
   const supabase = createClient(supabaseUrl, process.env.SUPABASE_ANON_KEY, {
     global: {
       headers: {
