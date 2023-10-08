@@ -3,7 +3,8 @@ const { createClient } = require("@supabase/supabase-js");
 const { getDatabaseStringFromUUID } = require("../../utils/database");
 const { createPool, getPool } = require("../../utils/pool");
 const { getAuth } = require("@clerk/fastify");
-const { extractBearerFromRequest } = require("../../utils/auth");
+const { Logtail } = require("@logtail/node");
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
 const handler = async (request, reply) => {
   try {
@@ -81,6 +82,20 @@ const handler = async (request, reply) => {
     client.release();
     reply.status(200).send(tableData);
   } catch (e) {
+    // Log the error and additional context
+    logtail.error("An unexpected error occurred in the handler.", {
+      errorMessage: e.message,
+      stack: e.stack,
+      request: {
+        method: request.raw.method,
+        url: request.raw.url,
+        payload: request.body,
+      },
+    });
+
+    // Ensure logs are flushed before replying
+    await logtail.flush();
+
     console.error("Error:", e);
     reply.status(500).send({
       status: "error",

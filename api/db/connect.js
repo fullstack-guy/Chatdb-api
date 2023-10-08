@@ -3,7 +3,9 @@ const { getDatabaseStringFromUUID } = require("../../utils/database");
 const { createClient } = require("@supabase/supabase-js");
 const { getAuth } = require("@clerk/fastify");
 const { createPool } = require("../../utils/pool");
-const { extractBearerFromRequest } = require("../../utils/auth");
+const { Logtail } = require("@logtail/node");
+
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
 function simplifyDataType(dataType) {
   // TODO: Strong typing dataType
@@ -132,6 +134,20 @@ const handler = async (request, reply) => {
     client.release();
     reply.status(200).send(databaseInfo);
   } catch (e) {
+    // Log the error and additional context
+    logtail.error("An unexpected error occurred in the handler.", {
+      errorMessage: e.message,
+      stack: e.stack,
+      request: {
+        method: request.raw.method,
+        url: request.raw.url,
+        payload: request.body,
+      },
+    });
+
+    // Ensure logs are flushed before replying
+    await logtail.flush();
+
     console.error(e);
     reply.status(500).send(e);
   }

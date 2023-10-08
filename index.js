@@ -2,25 +2,43 @@ require("dotenv").config();
 
 const fastify = require("fastify")({ logger: true });
 const cors = require("@fastify/cors");
+const { Logtail } = require("@logtail/node");
 const { clerkPlugin, getAuth } = require("@clerk/fastify");
 
 fastify.register(cors, {
   origin: "*",
 });
 
-/**
- * Register the Clerk plugin globally.
- * By default, Clerk will initialise using the API keys from the environment if found.
- *
- * If you prefer to pass the keys to the plugin explicitly, see `src/using-runtime-keys.ts`
- * If you prefer to register the plugin for specific routes only, see `src/authenticating-specific-routes.ts`
- */
+
 fastify.register(clerkPlugin);
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
 // Custom middleware to check Clerk user authentication
 // We need to make sure that the Next.js app is sending the right headers from Clerk
 fastify.addHook("preHandler", async (request, reply) => {
   const { userId } = getAuth(request);
+
+  // Initialize an empty payload
+  let payload = {};
+
+  // Add payload to log object only if the endpoint is not '/api/db/connect'
+  if (request.raw.url !== '/api/db/connect') {
+    payload = request.body;
+  }
+
+  // Structure the log as a JSON object
+  const logObject = {
+    userId: userId || "Unknown",
+    endpoint: request.raw.url,
+    method: request.raw.method,
+    payload, // This will either be the payload or an empty object
+    timestamp: new Date().toISOString(),
+  };
+
+  // Log the structured JSON object with Logtail
+  logtail.info(logObject);
+  fastify.log.info(logObject);
+
   if (!userId) {
     return reply.code(403).send("Unauthorized");
   }
@@ -55,5 +73,10 @@ const start = async () => {
     process.exit(1);
   }
 };
+
+// Ensure that all logs are sent to Logtail before exiting the process
+process.on("beforeExit", async () => {
+  await logtail.flush();
+});
 
 start();

@@ -19,6 +19,7 @@
     "@clerk/clerk-sdk-node": "^4.12.10",
     "@clerk/fastify": "^0.6.11",
     "@fastify/cors": "^8.4.0",
+    "@logtail/node": "^0.4.12",
     "@supabase/supabase-js": "^2.37.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",

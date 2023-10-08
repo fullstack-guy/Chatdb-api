@@ -3,7 +3,8 @@ const { getAuth } = require("@clerk/fastify");
 const { createClient } = require("@supabase/supabase-js");
 const { getDatabaseStringFromUUID } = require("../../utils/database");
 const { createPool } = require("../../utils/pool");
-const { extractBearerFromRequest } = require("../../utils/auth");
+const { Logtail } = require("@logtail/node");
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
 const handler = async (request, reply) => {
   const { query, database_uuid } = request.body;
@@ -60,12 +61,24 @@ const handler = async (request, reply) => {
         rows,
       },
     });
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    // Log the error and additional context
+    logtail.error("An unexpected error occurred in the handler.", {
+      errorMessage: e.message,
+      stack: e.stack,
+      request: {
+        method: request.raw.method,
+        url: request.raw.url,
+        payload: request.body,
+      },
+    });
+    // Ensure logs are flushed before replying
+    await logtail.flush();
+
+    console.error("Error:", e);
     reply.status(500).send({
-      error: "Failed to run query",
-      errorCode: err.code,
-      errorMessage: err.message,
+      status: "error",
+      message: `An unexpected error occurred: ${e.message}`,
     });
   }
 };
