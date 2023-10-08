@@ -4,13 +4,28 @@ const { createClient } = require("@supabase/supabase-js");
 const { getDatabaseStringFromUUID } = require("../../utils/database");
 const { createPool } = require("../../utils/pool");
 const { Logtail } = require("@logtail/node");
+const { Parser } = require("node-sql-parser");
+
 const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
+const parser = new Parser();
 
 const handler = async (request, reply) => {
   const { query, database_uuid } = request.body;
 
   if (!query || !database_uuid) {
     reply.status(400).send({ error: "No query or database uuid provided" });
+    return;
+  }
+
+  // Parse the SQL query to AST
+  const ast = parser.astify(query);
+
+  // Check if AST is an array (multiple queries) or a single object
+  if (Array.isArray(ast)) {
+    res.status(400).json({ error: "Multiple queries are not allowed" });
+    return;
+  } else if (ast.type !== "select") {
+    res.status(400).json({ error: "Only SELECT queries are allowed" });
     return;
   }
 
