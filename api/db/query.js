@@ -61,9 +61,7 @@ const handler = async (request, reply) => {
 
     const pool = await createPool(connection_string);
 
-    const client = await pool.connect();
-    const result = await client.query(query);
-    client.release();
+    const result = await pool.query(query);
 
     // Extracting columns and rows in the desired format
     const columns = result.fields.map((field) => field.name);

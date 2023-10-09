@@ -129,6 +129,31 @@ const handler = async (request, reply) => {
           });
         }
       }
+      const { rows: foreignTableRows } = await client.query(
+        "SELECT foreign_table_name, foreign_server_name FROM information_schema.foreign_tables WHERE foreign_table_schema = $1;",
+        [schema]
+      );
+
+      for (const foreignTableRow of foreignTableRows) {
+        const foreignTable = foreignTableRow.foreign_table_name;
+        databaseInfo[schema][foreignTable] = { isForeign: true, server: foreignTableRow.foreign_server_name };
+
+        const { rows: foreignColumnRows } = await client.query(
+          `
+          SELECT column_name, data_type, is_nullable
+          FROM information_schema.columns
+          WHERE table_name = $1 AND table_schema = $2;`,
+          [foreignTable, schema]
+        );
+
+        for (const columnRow of foreignColumnRows) {
+          databaseInfo[schema][foreignTable][columnRow.column_name] = {
+            type: simplifyDataType(columnRow.data_type),
+            nullable: columnRow.is_nullable === "YES",
+          };
+        }
+      }
+
     }
 
     client.release();

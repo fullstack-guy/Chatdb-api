@@ -55,7 +55,6 @@ const handler = async (request, reply) => {
 
     await createPool(connection_string);
     const pool = getPool();
-    const client = await pool.connect();
 
     let query = `SELECT * FROM ${table_name}`;
     let params = [];
@@ -77,9 +76,8 @@ const handler = async (request, reply) => {
       params.push(offset);
     }
 
-    const { rows: tableData } = await client.query(query, params);
+    const { rows: tableData } = await pool.query(query, params);
 
-    client.release();
     reply.status(200).send(tableData);
   } catch (e) {
     // Log the error and additional context
