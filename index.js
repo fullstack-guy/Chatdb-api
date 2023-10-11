@@ -39,9 +39,9 @@ fastify.addHook("preHandler", async (request, reply) => {
   logtail.info(logObject);
   fastify.log.info(logObject);
 
-  // if (!userId) {
-  //   return reply.code(403).send("Unauthorized");
-  // }
+  if (!userId) {
+    return reply.code(403).send("Unauthorized");
+  }
 });
 
 fastify.addContentTypeParser(
