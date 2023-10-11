@@ -1,10 +1,17 @@
 const { Pool: PgPool } = require("pg");
 const mysql = require("mysql2/promise");
 const { Logtail } = require("@logtail/node");
+const crypto = require('crypto');
 
 const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
 const pools = {};
+
+const hashString = (input) => {
+  const hash = crypto.createHash('sha256');
+  hash.update(input);
+  return hash.digest('hex');
+}
 
 const createPgPool = (connectionString) => {
   const pool = new PgPool({
@@ -45,9 +52,7 @@ const createMysqlPool = (connectionString) => {
 };
 
 const createPool = async (type, connectionString) => {
-  // Hash or encode your connection string to create a unique key
-  // Note: You should use a proper hashing or encoding method here
-  const uniqueKey = `${type}:${Buffer.from(connectionString).toString('base64')}`;
+  const uniqueKey = `${type}:${hashString(connectionString)}`;
 
   if (!pools[uniqueKey]) {
     try {
@@ -68,7 +73,8 @@ const createPool = async (type, connectionString) => {
 };
 
 const getPool = (type, connectionString) => {
-  const uniqueKey = `${type}:${Buffer.from(connectionString).toString('base64')}`;
+  const uniqueKey = `${type}:${hashString(connectionString)}`;
+
   if (!pools[uniqueKey]) {
     throw new Error(`Pool for ${uniqueKey} has not been created yet.`);
   }
