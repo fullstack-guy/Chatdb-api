@@ -39,9 +39,9 @@ fastify.addHook("preHandler", async (request, reply) => {
   logtail.info(logObject);
   fastify.log.info(logObject);
 
-  if (!userId) {
-    return reply.code(403).send("Unauthorized");
-  }
+  // if (!userId) {
+  //   return reply.code(403).send("Unauthorized");
+  // }
 });
 
 fastify.addContentTypeParser(
@@ -57,9 +57,15 @@ fastify.addContentTypeParser(
   }
 );
 
-fastify.post("/api/db/preview", require("./api/db/preview"));
-fastify.post("/api/db/query", require("./api/db/query"));
-fastify.post("/api/db/connect", require("./api/db/connect"));
+// postgres
+fastify.post("/api/db/postgres/preview", require("./api/db/postgres/preview"));
+fastify.post("/api/db/postgres/query", require("./api/db/postgres/query"));
+fastify.post("/api/db/postgres/connect", require("./api/db/postgres/connect"));
+
+// mysql
+fastify.post("/api/db/mysql/preview", require("./api/db/mysql/preview"));
+fastify.post("/api/db/mysql/query", require("./api/db/mysql/query"));
+fastify.post("/api/db/mysql/connect", require("./api/db/mysql/connect"));
 
 const port = process.env.PORT || 8000;
 const host = "RENDER" in process.env ? `0.0.0.0` : `localhost`;
