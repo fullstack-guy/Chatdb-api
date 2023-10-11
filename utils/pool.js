@@ -45,24 +45,34 @@ const createMysqlPool = (connectionString) => {
 };
 
 const createPool = async (type, connectionString) => {
-  if (!pools[type]) {
-    if (type === "postgres") {
-      pools[type] = createPgPool(connectionString);
-    } else if (type === "mysql") {
-      pools[type] = createMysqlPool(connectionString);
-    } else {
-      throw new Error("Invalid database type");
+  // Hash or encode your connection string to create a unique key
+  // Note: You should use a proper hashing or encoding method here
+  const uniqueKey = `${type}:${Buffer.from(connectionString).toString('base64')}`;
+
+  if (!pools[uniqueKey]) {
+    try {
+      if (type === "postgres") {
+        pools[uniqueKey] = createPgPool(connectionString);
+      } else if (type === "mysql") {
+        pools[uniqueKey] = createMysqlPool(connectionString);
+      } else {
+        throw new Error("Invalid database type");
+      }
+    } catch (err) {
+      logtail.error("Error creating pool", { errorMessage: err.message });
+      throw err;
     }
   }
 
-  return pools[type];
+  return pools[uniqueKey];
 };
 
-const getPool = (type) => {
-  if (!pools[type]) {
-    throw new Error(`Pool for ${type} has not been created yet.`);
+const getPool = (type, connectionString) => {
+  const uniqueKey = `${type}:${Buffer.from(connectionString).toString('base64')}`;
+  if (!pools[uniqueKey]) {
+    throw new Error(`Pool for ${uniqueKey} has not been created yet.`);
   }
-  return pools[type];
+  return pools[uniqueKey];
 };
 
 module.exports = { createPool, getPool };

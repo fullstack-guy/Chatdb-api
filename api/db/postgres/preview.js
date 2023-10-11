@@ -54,7 +54,7 @@ const handler = async (request, reply) => {
     const connection_string = "postgres://" + connectionStringObject.data;
 
     await createPool("postgres", connection_string);
-    const pool = getPool("postgres");
+    const pool = getPool("postgres", connection_string);
 
     let query = `SELECT * FROM ${table_name}`;
     let params = [];

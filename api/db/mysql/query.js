@@ -52,7 +52,7 @@ const handler = async (request, reply) => {
         const connection_string = "mysql://" + connectionStringObject.data;
 
         await createPool("mysql", connection_string);
-        const pool = getPool("mysql");
+        const pool = getPool("mysql", connection_string);
 
         const [result] = await pool.query(query);
 
