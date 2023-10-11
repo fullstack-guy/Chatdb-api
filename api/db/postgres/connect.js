@@ -1,8 +1,8 @@
 const { BasisTheory } = require("@basis-theory/basis-theory-js");
-const { getDatabaseStringFromUUID } = require("../../utils/database");
+const { getDatabaseStringFromUUID } = require("../../../utils/database");
 const { createClient } = require("@supabase/supabase-js");
 const { getAuth } = require("@clerk/fastify");
-const { createPool } = require("../../utils/pool");
+const { createPool } = require("../../../utils/pool");
 const { Logtail } = require("@logtail/node");
 
 const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
@@ -54,7 +54,7 @@ const handler = async (request, reply) => {
     connection_string = "postgres://" + connectionStringObject.data;
   }
 
-  const pool = await createPool(connection_string);
+  const pool = await createPool("postgres", connection_string);
 
   try {
     const client = await pool.connect();
