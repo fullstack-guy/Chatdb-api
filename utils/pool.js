@@ -14,6 +14,10 @@ const createPool = async (connectionString) => {
       connectionTimeoutMillis: 5000, // terminate the connection after 15 seconds if not established
     });
 
+    pool.on('connect', async (client) => {
+      await client.query('SET statement_timeout TO 5000');
+    });
+
     // Add error handling on the pool
     pool.on('error', (err, client) => {
       logtail.error(err)
