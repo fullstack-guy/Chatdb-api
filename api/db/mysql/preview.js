@@ -52,7 +52,9 @@ const handler = async (request, reply) => {
         await createPool("mysql", connection_string);
         const pool = getPool("mysql", connection_string);
 
-        let query = `SELECT * FROM ${table_name}`;
+        const [schemaName, tableName] = table_name.split('.');
+        let query = `SELECT * FROM \`${schemaName}\`.\`${tableName}\``;
+
         let params = [];
 
         if (where_clause) {
