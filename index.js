@@ -61,11 +61,13 @@ fastify.addContentTypeParser(
 fastify.post("/api/db/postgres/preview", require("./api/db/postgres/preview"));
 fastify.post("/api/db/postgres/query", require("./api/db/postgres/query"));
 fastify.post("/api/db/postgres/connect", require("./api/db/postgres/connect"));
+fastify.post("/api/db/postgres/ask_table", require("./api/db/postgres/ask_table"));
 
 // mysql
 fastify.post("/api/db/mysql/preview", require("./api/db/mysql/preview"));
 fastify.post("/api/db/mysql/query", require("./api/db/mysql/query"));
 fastify.post("/api/db/mysql/connect", require("./api/db/mysql/connect"));
+fastify.post("/api/db/mysql/ask_table", require("./api/db/mysql/ask_table"));
 
 const port = process.env.PORT || 8000;
 const host = "RENDER" in process.env ? `0.0.0.0` : `localhost`;
