@@ -4,14 +4,24 @@ const fastify = require("fastify")({ logger: true });
 const cors = require("@fastify/cors");
 const { Logtail } = require("@logtail/node");
 const { clerkPlugin, getAuth } = require("@clerk/fastify");
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
-fastify.register(cors, {
-  origin: "*",
+// Function to generate rate-limit options
+const rateLimitOptions = (max, timeWindow) => ({
+  rateLimit: {
+    max,
+    timeWindow,
+    keyGenerator: function (request) {
+      return getAuth(request).userId;
+    }
+  }
 });
 
-
+// Register plugins
+fastify.register(require('@fastify/rate-limit'), { global: false });
+fastify.register(cors, { origin: "*" });
 fastify.register(clerkPlugin);
-const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
+
 
 // Custom middleware to check Clerk user authentication
 // We need to make sure that the Next.js app is sending the right headers from Clerk
@@ -58,14 +68,14 @@ fastify.addContentTypeParser(
 );
 
 // postgres
-fastify.post("/api/db/postgres/preview", require("./api/db/postgres/preview"));
-fastify.post("/api/db/postgres/query", require("./api/db/postgres/query"));
-fastify.post("/api/db/postgres/connect", require("./api/db/postgres/connect"));
+fastify.post("/api/db/postgres/preview", rateLimitOptions(30, '1 minute'), require("./api/db/postgres/preview"));
+fastify.post("/api/db/postgres/query", rateLimitOptions(30, '1 minute'), require("./api/db/postgres/query"));
+fastify.post("/api/db/postgres/connect", rateLimitOptions(30, '1 minute'), require("./api/db/postgres/connect"));
 
 // mysql
-fastify.post("/api/db/mysql/preview", require("./api/db/mysql/preview"));
-fastify.post("/api/db/mysql/query", require("./api/db/mysql/query"));
-fastify.post("/api/db/mysql/connect", require("./api/db/mysql/connect"));
+fastify.post("/api/db/mysql/preview", rateLimitOptions(30, '1 minute'), require("./api/db/mysql/preview"));
+fastify.post("/api/db/mysql/query", rateLimitOptions(30, '1 minute'), require("./api/db/mysql/query"));
+fastify.post("/api/db/mysql/connect", rateLimitOptions(30, '1 minute'), require("./api/db/mysql/connect"));
 
 const port = process.env.PORT || 8000;
 const host = "RENDER" in process.env ? `0.0.0.0` : `localhost`;
