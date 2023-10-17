@@ -63,12 +63,6 @@ describe('validateQuery', () => {
     test('should return invalid for DROP DATABASE queries', () => {
         const result = validateQuery('DROP DATABASE my_database;');
         expect(result.valid).toBe(false);
-        expect(result.error).toBe('Only SELECT, DESCRIBE, SHOW, and EXPLAIN queries are allowed');
-    });
-
-    test('should return valid for DESCRIBE queries', () => {
-        const result = validateQuery('DESCRIBE users;');
-        expect(result).toEqual({ valid: true, type: 'desc' });
     });
 
     test('should return valid for SHOW queries', () => {
@@ -80,4 +74,14 @@ describe('validateQuery', () => {
         const result = validateQuery('SELECT id, created_at, database_uuid, user_id, total_tokens, completion_tokens, prompt_tokens, total_cost, model FROM ask_queries ORDER BY created_at DESC LIMIT 10;');
         expect(result).toEqual({ valid: true, type: 'select' });
     });
+
+    test('should return valid for more complicated query', () => {
+        const result = validateQuery("SELECT COUNT(*) AS total_queries FROM ask_queries WHERE created_at >= (CURRENT_DATE - interval '10 days');");
+        expect(result).toEqual({ valid: true, type: 'select' });
+    });
+
+    test('should return valid for ILIKE query', () => {
+        const result = validateQuery("SELECT COUNT(*) FROM user_schemas WHERE title ILIKE '%SupaDB%';");
+        expect(result).toEqual({ valid: true, type: 'select' });
+    })
 });

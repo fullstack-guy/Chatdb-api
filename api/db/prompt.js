@@ -3,23 +3,19 @@ const axios = require('axios');
 function createPrompt(createStatements, userQuestion, errorMessage = null, errorSql = null) {
     let prompt = `
     ### Instructions:
-    Your task is convert a question into a SQL query, given a Postgres database schema.
+    Your task is convert a question into a SQL query, given a Postgres table.
     Adhere to these rules:
-    - **Deliberately go through the question and database schema word by word** to appropriately answer the question
+    - **Deliberately go through the question and database table word by word** to appropriately answer the question
     - **Use Table Aliases** to prevent ambiguity. For example, \`SELECT table1.col1, table2.col1 FROM table1 JOIN table2 ON table1.id = table2.id\`.
     - When creating a ratio, always cast the numerator as float
 
     ### Input:
     Generate a SQL query that answers the question \`${userQuestion}\`.
-    This query will run on a database whose schema is represented in this string:
+    Only use aggregations / count when user specifies.
+    This query will run on a database whose table is represented in this string:
+    Do not reference a different table name than the table below.
     
     ${createStatements}
-
-    3 rows from ask_queries table:
-    id	created_at	database_uuid	user_id	total_tokens	completion_tokens	prompt_tokens	total_cost
-    444	2023-10-11 03:56:06.164179+00:00	521b45f6-5023-41e9-8c7c-c6a11f22ff87	user_2VuxTf8LmL70BXy57zPNcOnH6w2	2830	261	2569	0.09273
-    219	2023-09-28 21:52:49.951524+00:00	db48d452-7764-4047-9e36-b10c258bb248	user_2W2k2lvkmDA8THafExuX1kKwmNC	3358	201	3157	0.10677
-    245	2023-10-02 00:58:40.596654+00:00	df37e2d2-6493-440b-a576-edeef39abac9	user_2W2k2lvkmDA8THafExuX1kKwmNC	2818	162	2656	0.0894
     `;
 
     // Optionally append the error message and problematic SQL query
@@ -27,11 +23,9 @@ function createPrompt(createStatements, userQuestion, errorMessage = null, error
         prompt += `
         
         ${errorSql}
-
         --- 
         the SQL above gave this error: ${errorMessage}.
         Please fix it.
-
         `;
     }
 
@@ -46,7 +40,7 @@ function createPrompt(createStatements, userQuestion, errorMessage = null, error
 
 async function generateSqlQuery(prompt) {
     console.log(prompt)
-    const url = 'https://vp1swhd6jj0og0-9100.proxy.runpod.net/v1/completions';
+    const url = process.env.SQLCODER_ENDPOINT + '/v1/completions';
     const headers = {
         'Content-Type': 'application/json'
     };
@@ -76,13 +70,16 @@ async function generateSqlQuery(prompt) {
 const { Parser } = require("node-sql-parser");
 
 const parser = new Parser();
+const opt = {
+    database: 'postgresql'
+}
 
 // Returns an object with 'valid' (boolean) and 'type' (string) properties
 const allowedQueryTypes = ['select', 'desc', 'show', 'explain'];
 
 const validateQuery = (query) => {
     try {
-        let ast = parser.astify(query);
+        let ast = parser.astify(query, opt);
 
         // Check if ast is an array but only has one element
         if (Array.isArray(ast)) {
