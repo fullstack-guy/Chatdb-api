@@ -57,28 +57,32 @@ fastify.addContentTypeParser(
 
 // Postgres Routes with rate-limiting
 fastify.post("/api/db/postgres/preview", {
-  preHandler: rateLimitMiddleware(1, 60)  // 20 request per 60 seconds
+  preHandler: rateLimitMiddleware(30, 60)  // 30 request per minute
 }, require("./api/db/postgres/preview"));
 
+fastify.post("/api/db/postgres/ask_table", {
+  preHandler: rateLimitMiddleware(12, 60)  // 12 request per minute
+}, require("./api/db/postgres/ask_table"));
+
 fastify.post("/api/db/postgres/query", {
-  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per 60 seconds
+  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
 }, require("./api/db/postgres/query"));
 
 fastify.post("/api/db/postgres/connect", {
-  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per 60 seconds
+  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
 }, require("./api/db/postgres/connect"));
 
 // MySQL Routes with rate-limiting
 fastify.post("/api/db/mysql/preview", {
-  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per 60 seconds
+  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
 }, require("./api/db/mysql/preview"));
 
 fastify.post("/api/db/mysql/query", {
-  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per 60 seconds
+  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
 }, require("./api/db/mysql/query"));
 
 fastify.post("/api/db/mysql/connect", {
-  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per 60 seconds
+  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
 }, require("./api/db/mysql/connect"));
 
 const port = process.env.PORT || 8000;
