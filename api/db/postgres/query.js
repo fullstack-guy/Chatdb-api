@@ -45,23 +45,40 @@ const handler = async (request, reply) => {
 
     const bt = await new BasisTheory().init(process.env.NEXT_PRIVATE_BASIS_THEORY_KEY);
     const connectionStringObject = await bt.tokens.retrieve(data.database_string);
-    const connection_string = "mysql://" + connectionStringObject.data;
+    const connection_string = "postgresql://" + connectionStringObject.data;
 
-    await createPool("postgres", connection_string);
-    const pool = getPool("postgres", connection_string);
+    const pool = await createPool("postgres", connection_string);
 
-    const [result] = await pool.query(query);
+    if (validateQuery(query).valid) {
+      try {
 
-    const columns = Object.keys(result[0]);
-    const rows = result.map((row) => columns.map((column) => row[column]));
+        const result = await pool.query(query);
+        console.log("Query Result:", result);
 
-    return reply.status(200).send({
-      sql: query,
-      data: {
-        columns,
-        rows,
-      },
-    });
+        // Get the column names from the first row in the result
+        const columns = Object.keys(result.rows[0]);
+
+        // Generate an array of arrays, where each inner array represents a row
+        const rows = result.rows.map((row) => columns.map((column) => row[column]));
+
+        // Construct the response
+        return reply.status(200).send({
+          sql: query,
+          data: {
+            columns,
+            rows,
+          },
+        });
+      } catch (err) {
+        console.error(err)
+        reply.status(400).send({ "error": "Sorry, that query wasn't valid!" });
+      }
+    } else {
+      console.log(validateQuery(sql), sql)
+      reply.status(400).send({ "error": "Sorry, that query wasn't valid!" });
+    }
+
+
   } catch (e) {
     logtail.error("An unexpected error occurred in the handler.", {
       errorMessage: e.message,
