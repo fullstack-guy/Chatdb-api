@@ -25,7 +25,7 @@ function createPrompt(createStatements, userQuestion, errorMessage = null, error
         ${errorSql}
         --- 
         the SQL above gave this error: ${errorMessage}.
-        Please fix it.
+        Do not use this SQL above, find a better way to write it. Double check table, database, field names.
         `;
     }
 
