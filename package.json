@@ -19,7 +19,6 @@
     "@clerk/clerk-sdk-node": "^4.12.10",
     "@clerk/fastify": "^0.6.11",
     "@fastify/cors": "^8.4.0",
-    "@fastify/rate-limit": "^8.0.3",
     "@logtail/node": "^0.4.12",
     "@supabase/supabase-js": "^2.37.0",
     "crypto": "^1.0.1",
@@ -28,7 +27,8 @@
     "fastify": "^4.23.2",
     "mysql2": "^3.6.1",
     "node-sql-parser": "^4.11.0",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "rate-limiter-flexible": "^3.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
