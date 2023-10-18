@@ -43,7 +43,7 @@ const handler = async (request, reply) => {
       return;
     }
 
-    const bt = await new BasisTheory().init(process.env.NEXT_PRIVATE_BASIS_THEORY_KEY);
+    const bt = await new BasisTheory().init(process.env.PRIVATE_BASIS_THEORY_KEY);
     const connectionStringObject = await bt.tokens.retrieve(data.database_string);
     const connection_string = "postgresql://" + connectionStringObject.data;
 
