@@ -27,7 +27,8 @@
     "fastify": "^4.23.2",
     "mysql2": "^3.6.1",
     "node-sql-parser": "^4.11.0",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "rate-limiter-flexible": "^3.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
