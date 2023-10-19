@@ -72,19 +72,6 @@ fastify.post("/api/db/postgres/connect", {
   preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
 }, require("./api/db/postgres/connect"));
 
-// // MySQL Routes with rate-limiting
-// fastify.post("/api/db/mysql/preview", {
-//   preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
-// }, require("./api/db/mysql/preview"));
-
-// fastify.post("/api/db/mysql/query", {
-//   preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
-// }, require("./api/db/mysql/query"));
-
-// fastify.post("/api/db/mysql/connect", {
-//   preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
-// }, require("./api/db/mysql/connect"));
-
 const port = process.env.PORT || 8000;
 const host = "RENDER" in process.env ? `0.0.0.0` : `localhost`;
 
