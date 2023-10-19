@@ -4,7 +4,7 @@ const { createClient } = require("@supabase/supabase-js");
 const { getDatabaseStringFromUUID } = require("../../../utils/database");
 const { createPool } = require("../../../utils/pool");
 const { Logtail } = require("@logtail/node");
-const { validateQuery } = require("../prompt")
+const { validateQuery } = require("../prompt");
 
 const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
@@ -27,31 +27,41 @@ const handler = async (request, reply) => {
   const auth = getAuth(request);
   const token = await auth.getToken({ template: "supabase" });
 
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`,
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    },
-  });
+    }
+  );
 
   try {
-    const { data, error } = await getDatabaseStringFromUUID(supabase, database_uuid);
+    const { data, error } = await getDatabaseStringFromUUID(
+      supabase,
+      database_uuid
+    );
 
     if (error) {
       reply.status(400).send({ error: error.message });
       return;
     }
 
-    const bt = await new BasisTheory().init(process.env.PRIVATE_BASIS_THEORY_KEY);
-    const connectionStringObject = await bt.tokens.retrieve(data.database_string);
+    const bt = await new BasisTheory().init(
+      process.env.PRIVATE_BASIS_THEORY_KEY
+    );
+    const connectionStringObject = await bt.tokens.retrieve(
+      data.database_string
+    );
     const connection_string = "postgresql://" + connectionStringObject.data;
 
     const pool = await createPool("postgres", connection_string);
 
     if (validateQuery(query).valid) {
       try {
-
         const result = await pool.query(query);
         console.log("Query Result:", result);
 
@@ -59,7 +69,9 @@ const handler = async (request, reply) => {
         const columns = Object.keys(result.rows[0]);
 
         // Generate an array of arrays, where each inner array represents a row
-        const rows = result.rows.map((row) => columns.map((column) => row[column]));
+        const rows = result.rows.map((row) =>
+          columns.map((column) => row[column])
+        );
 
         // Construct the response
         return reply.status(200).send({
@@ -70,15 +82,13 @@ const handler = async (request, reply) => {
           },
         });
       } catch (err) {
-        console.error(err)
-        reply.status(400).send({ "error": "Sorry, that query wasn't valid!" });
+        console.error(err);
+        reply.status(400).send({ error: "Sorry, that query wasn't valid!" });
       }
     } else {
-      console.log(validateQuery(sql), sql)
-      reply.status(400).send({ "error": "Sorry, that query wasn't valid!" });
+      console.log(validateQuery(sql), sql);
+      reply.status(400).send({ error: "Sorry, that query wasn't valid!" });
     }
-
-
   } catch (e) {
     logtail.error("An unexpected error occurred in the handler.", {
       errorMessage: e.message,

@@ -4,7 +4,7 @@ const fastify = require("fastify")({ logger: true });
 const cors = require("@fastify/cors");
 const { Logtail } = require("@logtail/node");
 const { clerkPlugin, getAuth } = require("@clerk/fastify");
-const { rateLimitMiddleware } = require('./utils/ratelimiter');
+const { rateLimitMiddleware } = require("./utils/ratelimiter");
 
 const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
 
@@ -21,7 +21,7 @@ fastify.addHook("preHandler", async (request, reply) => {
   let payload = {};
 
   // Add payload to log object only if the endpoint is not '/api/db/connect'
-  if (request.raw.url !== '/api/db/connect') {
+  if (request.raw.url !== "/api/db/connect") {
     payload = request.body;
   }
 
@@ -56,21 +56,37 @@ fastify.addContentTypeParser(
 );
 
 // Postgres Routes with rate-limiting
-fastify.post("/api/db/postgres/preview", {
-  preHandler: rateLimitMiddleware(30, 60)  // 30 request per minute
-}, require("./api/db/postgres/preview"));
+fastify.post(
+  "/api/db/postgres/preview",
+  {
+    preHandler: rateLimitMiddleware(30, 60), // 30 request per minute
+  },
+  require("./api/db/postgres/preview")
+);
 
-fastify.post("/api/db/postgres/ask_table", {
-  preHandler: rateLimitMiddleware(12, 60)  // 12 request per minute
-}, require("./api/db/postgres/ask_table"));
+fastify.post(
+  "/api/db/postgres/ask_table",
+  {
+    preHandler: rateLimitMiddleware(12, 60), // 12 request per minute
+  },
+  require("./api/db/postgres/ask_table")
+);
 
-fastify.post("/api/db/postgres/query", {
-  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
-}, require("./api/db/postgres/query"));
+fastify.post(
+  "/api/db/postgres/query",
+  {
+    preHandler: rateLimitMiddleware(30, 60), // 30 requests per minute
+  },
+  require("./api/db/postgres/query")
+);
 
-fastify.post("/api/db/postgres/connect", {
-  preHandler: rateLimitMiddleware(30, 60)  // 30 requests per minute
-}, require("./api/db/postgres/connect"));
+fastify.post(
+  "/api/db/postgres/connect",
+  {
+    preHandler: rateLimitMiddleware(30, 60), // 30 requests per minute
+  },
+  require("./api/db/postgres/connect")
+);
 
 const port = process.env.PORT || 8000;
 const host = "RENDER" in process.env ? `0.0.0.0` : `localhost`;

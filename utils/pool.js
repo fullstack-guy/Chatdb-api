@@ -1,17 +1,19 @@
 const { Pool: PgPool } = require("pg");
 const mysql = require("mysql2/promise");
 const { Logtail } = require("@logtail/node");
-const crypto = require('crypto');
+const crypto = require("crypto");
 
-const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN || "fFZziHPdVigoGEnrs734Rhcp");
+const logtail = new Logtail(
+  process.env.LOGTAIL_SOURCE_TOKEN || "fFZziHPdVigoGEnrs734Rhcp"
+);
 
 const pools = {};
 
 const hashString = (input) => {
-  const hash = crypto.createHash('sha256');
+  const hash = crypto.createHash("sha256");
   hash.update(input);
-  return hash.digest('hex');
-}
+  return hash.digest("hex");
+};
 
 const createPgPool = (connectionString) => {
   const pool = new PgPool({
@@ -45,7 +47,7 @@ const createMysqlPool = (connectionString) => {
   const originalQuery = pool.query.bind(pool);
 
   pool.query = (sql, values) => {
-    return originalQuery(sql, values, { timeout: 10000 });  // 10 seconds timeout
+    return originalQuery(sql, values, { timeout: 10000 }); // 10 seconds timeout
   };
 
   return pool;

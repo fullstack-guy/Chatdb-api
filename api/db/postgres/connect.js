@@ -136,7 +136,10 @@ const handler = async (request, reply) => {
 
       for (const foreignTableRow of foreignTableRows) {
         const foreignTable = foreignTableRow.foreign_table_name;
-        databaseInfo[schema][foreignTable] = { isForeign: true, server: foreignTableRow.foreign_server_name };
+        databaseInfo[schema][foreignTable] = {
+          isForeign: true,
+          server: foreignTableRow.foreign_server_name,
+        };
 
         const { rows: foreignColumnRows } = await client.query(
           `
@@ -153,7 +156,6 @@ const handler = async (request, reply) => {
           };
         }
       }
-
     }
 
     client.release();
