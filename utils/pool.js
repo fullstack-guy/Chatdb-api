@@ -3,7 +3,7 @@ const mysql = require("mysql2/promise");
 const { Logtail } = require("@logtail/node");
 const crypto = require('crypto');
 
-const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN);
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN || "fFZziHPdVigoGEnrs734Rhcp");
 
 const pools = {};
 
@@ -22,7 +22,7 @@ const createPgPool = (connectionString) => {
   });
 
   pool.on("connect", async (client) => {
-    await client.query("SET statement_timeout TO 10000");
+    await client.query("SET statement_timeout TO 60000"); // 1 minute query statement timeout
   });
 
   pool.on("error", (err, client) => {
