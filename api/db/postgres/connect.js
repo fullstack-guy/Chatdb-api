@@ -59,6 +59,21 @@ const handler = async (request, reply) => {
   try {
     const client = await pool.connect();
 
+    // Find the current PostgreSQL user
+    const currentUserResult = await client.query('SELECT current_user;');
+    const current_user = currentUserResult.rows[0].current_user;
+
+    // SQL query to check for dangerous permissions
+    const checkQuery = `
+          SELECT table_schema, table_name, privilege_type
+          FROM information_schema.role_table_grants
+          WHERE grantee=$1 AND privilege_type IN ('ALTER', 'DROP', 'INSERT', 'DELETE', 'UPDATE');
+        `;
+
+    const { rows: dangerousPermissionRows } = await client.query(checkQuery, [current_user]);
+
+    const hasDangerousPermissions = dangerousPermissionRows.length > 0;
+
     const excludedSchemas = ["information_schema", "pg_catalog"];
     const { rows: schemaRows } = await client.query(
       `SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT IN (${excludedSchemas
@@ -159,7 +174,7 @@ const handler = async (request, reply) => {
     }
 
     client.release();
-    reply.status(200).send(databaseInfo);
+    reply.status(200).send({ schema: databaseInfo, hasDangerousPermissions });
   } catch (e) {
     // Log the error and additional context
     logtail.error("An unexpected error occurred in the handler.", {
