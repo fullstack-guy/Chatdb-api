@@ -24,7 +24,7 @@ const createPgPool = (connectionString) => {
   });
 
   pool.on("connect", async (client) => {
-    await client.query("SET statement_timeout TO 60000"); // 1 minute query statement timeout
+    await client.query("SET statement_timeout TO 300000"); // 5 minute query statement timeout
   });
 
   pool.on("error", (err, client) => {
